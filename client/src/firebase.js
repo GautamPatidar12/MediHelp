@@ -1,6 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { collection, addDoc, getDocs } from "firebase/firestore";
 
+// Firebase configuration object
 const firebaseConfig = {
   apiKey: "AIzaSyB896pvCZwGVU5RUIWBIVzUAtTllNAu0n8",
   authDomain: "fir-auth-1132.firebaseapp.com",
@@ -11,8 +14,11 @@ const firebaseConfig = {
   measurementId: "G-MFP6M081T7",
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-const auth = getAuth();
+// Get Firebase Authentication and Firestore instances
+const auth = getAuth(app);
+const db = getFirestore(app); // Initialize Firestore
 
-export { app, auth };
+export { app, auth, db }; // Export db here

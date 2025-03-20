@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase'; // Import the auth object to manage authentication
+import DoctorConsultancy from '../../components/Consultancy'; // Import the DoctorConsultancy component
 
 function DashBoard() {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isDoctorDetailView, setIsDoctorDetailView] = useState(false);
+  const [user, setUser] = useState(null); // User state to store user data
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -17,14 +24,91 @@ function DashBoard() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener('resize', handleResize);
     handleResize(); // Check on initial load
+
+    // Fetch current user
+    const currentUser = auth.currentUser;
+    setUser(currentUser); // Set the user data
 
     return () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  const handleCardClick = (cardType) => {
+    if (cardType === 'doctor') {
+      setIsDoctorDetailView(true);
+    }
+  };
+
+  const handleBackClick = () => {
+    setIsDoctorDetailView(false);
+  };
+
+  const handleLogout = () => {
+    signOut(auth)
+      .then(() => {
+        // Redirect to login page after logout
+        navigate('/login');
+      })
+      .catch((error) => {
+        console.error('Error signing out:', error);
+      });
+  };
+
+  // JSON format for card data
+  const cardsData = [
+    {
+      id: 1,
+      title: 'Doctor Consultancy',
+      description: 'Click to view doctor details...',
+      backgroundColor: 'bg-blue-100',
+      textColor: 'text-blue-600',
+      onClick: () => handleCardClick('doctor'),
+    },
+    {
+      id: 2,
+      title: 'Card 2',
+      description: 'Some content here...',
+      backgroundColor: 'bg-green-100',
+      textColor: 'text-green-600',
+      onClick: () => {},
+    },
+    {
+      id: 3,
+      title: 'Card 3',
+      description: 'Some content here...',
+      backgroundColor: 'bg-yellow-100',
+      textColor: 'text-yellow-600',
+      onClick: () => {},
+    },
+    {
+      id: 4,
+      title: 'Card 4',
+      description: 'Some content here...',
+      backgroundColor: 'bg-red-100',
+      textColor: 'text-red-600',
+      onClick: () => {},
+    },
+    {
+      id: 5,
+      title: 'Card 5',
+      description: 'Some content here...',
+      backgroundColor: 'bg-blue-100',
+      textColor: 'text-blue-600',
+      onClick: () => {},
+    },
+    {
+      id: 6,
+      title: 'Card 6',
+      description: 'Some content here...',
+      backgroundColor: 'bg-green-100',
+      textColor: 'text-green-600',
+      onClick: () => {},
+    },
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100 relative">
@@ -38,15 +122,38 @@ function DashBoard() {
       <div
         className={`bg-gray-900 text-white w-64 h-full fixed top-0 left-0 transition-all duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
-        <div className="flex items-center justify-center py-5 text-2xl font-semibold">
-          Dashboard
+        {/* Profile Section */}
+        <div className="flex flex-col items-center py-6">
+          {/* Profile Image */}
+          <img
+            src={user?.photoURL || 'https://via.placeholder.com/100'} // Fallback image
+            alt="Profile"
+            className="w-24 h-24 rounded-full border-4 border-white mb-4"
+          />
+          {/* User Name */}
+          <div className="text-center">
+            <p className="text-xl font-semibold">{user?.displayName || 'User Name'}</p>
+            <p className="text-sm text-gray-300">{user?.email || 'user@example.com'}</p>
+          </div>
         </div>
-        <ul>
+
+        {/* Menu Options */}
+        <ul className="mt-6">
           <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Home</li>
           <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Settings</li>
           <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Profile</li>
           <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Messages</li>
         </ul>
+
+        {/* Logout Button */}
+        <div className="absolute bottom-6 w-full px-6">
+          <button
+            className="w-full py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -71,39 +178,29 @@ function DashBoard() {
           </div>
         </div>
 
-        {/* Dashboard Content */}
-        <div className="bg-white p-6 rounded-lg shadow-xl">
-          <h2 className="text-3xl font-semibold text-gray-800 mb-4">Main Dashboard</h2>
-          <p className="text-lg text-gray-600">Welcome to your modern and beautiful dashboard. Here you can manage your data and get insights.</p>
+        {/* Conditional Rendering of Content */}
+        {isDoctorDetailView ? (
+          <DoctorConsultancy onBackClick={handleBackClick} />
+        ) : (
+          <div className="bg-white p-6 rounded-lg shadow-xl">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-4">Main Dashboard</h2>
+            <p className="text-lg text-gray-600">Welcome to your modern and beautiful dashboard. Here you can manage your data and get insights.</p>
 
-          {/* Sample Content */}
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-blue-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-blue-600">
-              <h3 className="text-xl font-semibold text-blue-600">Card 1</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
-            </div>
-            <div className="bg-green-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-green-600">
-              <h3 className="text-xl font-semibold text-green-600">Card 2</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
-            </div>
-            <div className="bg-yellow-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-yellow-600">
-              <h3 className="text-xl font-semibold text-yellow-600">Card 3</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
-            </div>
-            <div className="bg-red-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-red-600">
-              <h3 className="text-xl font-semibold text-red-600">Card 4</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
-            </div>
-            <div className="bg-blue-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-blue-600">
-              <h3 className="text-xl font-semibold text-blue-600">Card 5</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
-            </div>
-            <div className="bg-green-100 p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-green-600">
-              <h3 className="text-xl font-semibold text-green-600">Card 6</h3>
-              <p className="text-gray-600 mt-2">Some content here...</p>
+            {/* Render Cards */}
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {cardsData.map((card) => (
+                <div
+                  key={card.id}
+                  onClick={card.onClick}
+                  className={`${card.backgroundColor} p-6 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl hover:border-2 hover:border-blue-600 cursor-pointer`}
+                >
+                  <h3 className={`text-xl font-semibold ${card.textColor}`}>{card.title}</h3>
+                  <p className="text-gray-600 mt-2">{card.description}</p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Sidebar Toggle Button (for Mobile) */}

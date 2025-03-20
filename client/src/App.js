@@ -7,6 +7,7 @@ import Signup from './Pages/User-Auth/Signup'
 import Login from './Pages/User-Auth/Login'
 import Profile from './Pages/User-Auth/Profile'
 import Home from './Pages/User-Auth/Home'
+import Doctor from './Pages/User-Auth/Doctor'
 
 import DashBoard from "./Pages/DashBoard/DashBoard";
 
@@ -32,6 +33,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/doctor" element={<Doctor />} />
           <Route path="/profile" element={<Profile name={userName} email={userEmail} />} />
           <Route path="/" element={<Home name={userName} />} />
 
