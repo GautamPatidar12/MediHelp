@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase'; // Import the auth object to manage authentication
-import DoctorConsultancy from '../../components/Consultancy'; // Import the DoctorConsultancy component
+import DoctorConsultancy from '../../components/Consultancy'; // Import DoctorConsultancy component
+import News from '../../components/News'; // Import News component
+import Insurance from '../../components/Insurance'; // Import Insurance component
 
 function DashBoard() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isDoctorDetailView, setIsDoctorDetailView] = useState(false);
-  const [user, setUser] = useState(null); // User state to store user data
+  const [isNewsView, setIsNewsView] = useState(false);
+  const [isInsuranceView, setIsInsuranceView] = useState(false);
+  const [user, setUser] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -40,11 +44,17 @@ function DashBoard() {
   const handleCardClick = (cardType) => {
     if (cardType === 'doctor') {
       setIsDoctorDetailView(true);
+    } else if (cardType === 'news') {
+      setIsNewsView(true);
+    } else if (cardType === 'insurance') {
+      setIsInsuranceView(true);
     }
   };
 
   const handleBackClick = () => {
     setIsDoctorDetailView(false);
+    setIsNewsView(false);
+    setIsInsuranceView(false);
   };
 
   const handleLogout = () => {
@@ -78,11 +88,11 @@ function DashBoard() {
     },
     {
       id: 3,
-      title: 'Card 3',
-      description: 'Some content here...',
+      title: 'News and Updates',
+      description: 'Click to get latest news...',
       backgroundColor: 'bg-yellow-100',
       textColor: 'text-yellow-600',
-      onClick: () => {},
+      onClick: () => handleCardClick('news'),
     },
     {
       id: 4,
@@ -94,11 +104,11 @@ function DashBoard() {
     },
     {
       id: 5,
-      title: 'Card 5',
-      description: 'Some content here...',
+      title: 'Health Insurance Information',
+      description: 'Click to view health insurance details...',
       backgroundColor: 'bg-blue-100',
       textColor: 'text-blue-600',
-      onClick: () => {},
+      onClick: () => handleCardClick('insurance'),
     },
     {
       id: 6,
@@ -124,13 +134,11 @@ function DashBoard() {
       >
         {/* Profile Section */}
         <div className="flex flex-col items-center py-6">
-          {/* Profile Image */}
           <img
             src={user?.photoURL || 'https://via.placeholder.com/100'} // Fallback image
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-white mb-4"
           />
-          {/* User Name */}
           <div className="text-center">
             <p className="text-xl font-semibold">{user?.displayName || 'User Name'}</p>
             <p className="text-sm text-gray-300">{user?.email || 'user@example.com'}</p>
@@ -139,21 +147,32 @@ function DashBoard() {
 
         {/* Menu Options */}
         <ul className="mt-6">
-          <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Home</li>
-          <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Settings</li>
-          <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Profile</li>
-          <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Messages</li>
+          {user ? (
+            <>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Home</li>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Settings</li>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Profile</li>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer">Messages</li>
+            </>
+          ) : (
+            <>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/login')}>Login</li>
+              <li className="py-2 px-6 hover:bg-gray-700 cursor-pointer" onClick={() => navigate('/signup')}>Sign Up</li>
+            </>
+          )}
         </ul>
 
         {/* Logout Button */}
-        <div className="absolute bottom-6 w-full px-6">
-          <button
-            className="w-full py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
+        {user && (
+          <div className="absolute bottom-6 w-full px-6">
+            <button
+              className="w-full py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
@@ -162,14 +181,12 @@ function DashBoard() {
       >
         {/* Top Bar for Search and Button */}
         <div className={`flex items-center justify-between mb-8 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-          {/* Search Bar */}
           <div className="flex items-center w-full max-w-3xl">
             <input
               type="text"
               placeholder="Search..."
               className="w-full px-4 py-2 rounded-lg shadow-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {/* Submit Button */}
             <button
               className={`ml-4 py-2 px-4 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-all duration-300 ${isMobile ? 'w-10 h-10' : 'px-6'}`}
             >
@@ -181,12 +198,15 @@ function DashBoard() {
         {/* Conditional Rendering of Content */}
         {isDoctorDetailView ? (
           <DoctorConsultancy onBackClick={handleBackClick} />
+        ) : isNewsView ? (
+          <News onBackClick={handleBackClick} />
+        ) : isInsuranceView ? (
+          <Insurance onBackClick={handleBackClick} />
         ) : (
           <div className="bg-white p-6 rounded-lg shadow-xl">
             <h2 className="text-3xl font-semibold text-gray-800 mb-4">Main Dashboard</h2>
             <p className="text-lg text-gray-600">Welcome to your modern and beautiful dashboard. Here you can manage your data and get insights.</p>
 
-            {/* Render Cards */}
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {cardsData.map((card) => (
                 <div
@@ -202,14 +222,6 @@ function DashBoard() {
           </div>
         )}
       </div>
-
-      {/* Sidebar Toggle Button (for Mobile) */}
-      <button
-        className="lg:hidden absolute top-16 left-5 bg-blue-600 text-white p-2 rounded-lg"
-        onClick={toggleSidebar}
-      >
-        &#9776;
-      </button>
     </div>
   );
 }
