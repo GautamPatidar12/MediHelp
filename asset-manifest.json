@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/MediHelp/static/css/main.df7df212.css",
+    "main.js": "/MediHelp/static/js/main.64553f20.js",
+    "index.html": "/MediHelp/index.html",
+    "main.df7df212.css.map": "/MediHelp/static/css/main.df7df212.css.map",
+    "main.64553f20.js.map": "/MediHelp/static/js/main.64553f20.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.df7df212.css",
+    "static/js/main.64553f20.js"
+  ]
+}
