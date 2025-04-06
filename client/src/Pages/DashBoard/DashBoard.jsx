@@ -5,6 +5,7 @@ import { auth } from '../../firebase'; // Import the auth object to manage authe
 import DoctorConsultancy from '../../components/Consultancy'; // Import DoctorConsultancy component
 import News from '../../components/News'; // Import News component
 import Insurance from '../../components/Insurance'; // Import Insurance component
+import BloodMap from '../../components/BloodMap'; // Import BloodMap component
 
 function DashBoard() {
   const navigate = useNavigate();
@@ -13,13 +14,13 @@ function DashBoard() {
   const [isDoctorDetailView, setIsDoctorDetailView] = useState(false);
   const [isNewsView, setIsNewsView] = useState(false);
   const [isInsuranceView, setIsInsuranceView] = useState(false);
+  const [isMapView, setIsMapView] = useState(false); // State for map view
   const [user, setUser] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  // Adjust layout for mobile on window resize
   const handleResize = () => {
     if (window.innerWidth <= 1024) {
       setIsMobile(true);
@@ -30,11 +31,10 @@ function DashBoard() {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize);
-    handleResize(); // Check on initial load
+    handleResize();
 
-    // Fetch current user
     const currentUser = auth.currentUser;
-    setUser(currentUser); // Set the user data
+    setUser(currentUser);
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -48,6 +48,8 @@ function DashBoard() {
       setIsNewsView(true);
     } else if (cardType === 'insurance') {
       setIsInsuranceView(true);
+    } else if (cardType === 'map') {
+      setIsMapView(true); // Set map view to true when the second card is clicked
     }
   };
 
@@ -55,12 +57,12 @@ function DashBoard() {
     setIsDoctorDetailView(false);
     setIsNewsView(false);
     setIsInsuranceView(false);
+    setIsMapView(false); // Reset map view on back click
   };
 
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        // Redirect to login page after logout
         navigate('/login');
       })
       .catch((error) => {
@@ -68,7 +70,6 @@ function DashBoard() {
       });
   };
 
-  // JSON format for card data
   const cardsData = [
     {
       id: 1,
@@ -80,11 +81,11 @@ function DashBoard() {
     },
     {
       id: 2,
-      title: 'Card 2',
-      description: 'Some content here...',
+      title: 'Blood Map',
+      description: 'Click to view the map...',
       backgroundColor: 'bg-green-100',
       textColor: 'text-green-600',
-      onClick: () => {},
+      onClick: () => handleCardClick('map'), // Handle map view
     },
     {
       id: 3,
@@ -96,46 +97,27 @@ function DashBoard() {
     },
     {
       id: 4,
-      title: 'Card 4',
-      description: 'Some content here...',
-      backgroundColor: 'bg-red-100',
-      textColor: 'text-red-600',
-      onClick: () => {},
-    },
-    {
-      id: 5,
       title: 'Health Insurance Information',
       description: 'Click to view health insurance details...',
       backgroundColor: 'bg-blue-100',
       textColor: 'text-blue-600',
       onClick: () => handleCardClick('insurance'),
     },
-    {
-      id: 6,
-      title: 'Card 6',
-      description: 'Some content here...',
-      backgroundColor: 'bg-green-100',
-      textColor: 'text-green-600',
-      onClick: () => {},
-    },
   ];
 
   return (
     <div className="flex h-screen bg-gray-100 relative">
-      {/* Overlay for Sidebar on Mobile */}
       <div
         className={`fixed inset-0 bg-gray-800 bg-opacity-50 lg:hidden transition-opacity ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={toggleSidebar}
       ></div>
 
-      {/* Sidebar */}
       <div
         className={`bg-gray-900 text-white w-64 h-full fixed top-0 left-0 transition-all duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
-        {/* Profile Section */}
         <div className="flex flex-col items-center py-6">
           <img
-            src={user?.photoURL || 'https://via.placeholder.com/100'} // Fallback image
+            src={user?.photoURL || 'https://via.placeholder.com/100'}
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-white mb-4"
           />
@@ -145,7 +127,6 @@ function DashBoard() {
           </div>
         </div>
 
-        {/* Menu Options */}
         <ul className="mt-6">
           {user ? (
             <>
@@ -162,7 +143,6 @@ function DashBoard() {
           )}
         </ul>
 
-        {/* Logout Button */}
         {user && (
           <div className="absolute bottom-6 w-full px-6">
             <button
@@ -175,11 +155,7 @@ function DashBoard() {
         )}
       </div>
 
-      {/* Main Content */}
-      <div
-        className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'} lg:ml-64`}
-      >
-        {/* Top Bar for Search and Button */}
+      <div className={`flex-1 p-6 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-0'} lg:ml-64`}>
         <div className={`flex items-center justify-between mb-8 ${isMobile ? 'flex-col' : 'flex-row'}`}>
           <div className="flex items-center w-full max-w-3xl">
             <input
@@ -190,7 +166,7 @@ function DashBoard() {
             <button
               className={`ml-4 py-2 px-4 rounded-full bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-all duration-300 ${isMobile ? 'w-10 h-10' : 'px-6'}`}
             >
-              {isMobile ? '→' : 'Submit'}
+              {isMobile ? '🔍' : 'Submit'}
             </button>
           </div>
         </div>
@@ -202,6 +178,16 @@ function DashBoard() {
           <News onBackClick={handleBackClick} />
         ) : isInsuranceView ? (
           <Insurance onBackClick={handleBackClick} />
+        ) : isMapView ? (
+          <div className="w-full h-full relative">
+            <BloodMap />
+            <button
+              className="absolute top-6 right-6 bg-blue-500 text-white px-4 py-2 rounded-md"
+              onClick={handleBackClick}
+            >
+              Back
+            </button>
+          </div>
         ) : (
           <div className="bg-white p-6 rounded-lg shadow-xl">
             <h2 className="text-3xl font-semibold text-gray-800 mb-4">Main Dashboard</h2>

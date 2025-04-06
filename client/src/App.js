@@ -9,6 +9,7 @@ import Signup from './Pages/User-Auth/Signup';
 import DoctorSignup from './Pages/User-Auth/Doctor';
 import Profile from './Pages/User-Auth/Profile';
 import Sidebar from './components/SideBar'; // Assuming you have a Sidebar component
+import BloodMap from './components/BloodMap';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -63,6 +64,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/bloodmap" element={<BloodMap />} />
           
         </Routes>
       </div>
